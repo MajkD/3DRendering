@@ -5,9 +5,8 @@ function Engine(){
 
   var squareVerticesBuffer = undefined;
   var squareVerticesColorBuffer = undefined;
-
-  // NEED???
-  var horizAspect = 480.0/640.0;
+  var perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+  var entities = []
 
   this.engineInitializedCallback = undefined;
 
@@ -36,101 +35,35 @@ function Engine(){
   }
 
   Engine.prototype.shadersInitialized = function() {
-    console.log("Shaders Initialized...");
-    this.initBuffers();
-    console.log("Engine Initialized...");
+    entities[0] = new Entity(gl, [-2.0, 0.0, -8.0], "entity1");
+    entities[1] = new Entity(gl, [2.0, 0.0, -8.0], "entity2");
+    console.log(entities[0].getName());
+    console.log(entities[1].getName());
     this.engineInitializedCallback();
-  }
-
-  Engine.prototype.initBuffers = function() {
-    var vertices = [
-      1.0,  1.0,  0.0,
-      -1.0, 1.0,  0.0,
-      1.0,  -1.0, 0.0,
-      -1.0, -1.0, 0.0
-    ];
-
-    squareVerticesBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    var colors = [
-      1.0,  1.0,  1.0,  1.0,    // white
-      1.0,  0.0,  0.0,  1.0,    // red
-      0.0,  1.0,  0.0,  1.0,    // green
-      0.0,  0.0,  1.0,  1.0     // blue
-    ];
-    
-    squareVerticesColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
   }
 
   Engine.prototype.drawScene = function(squareRotation) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
-    perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
-    
-    loadIdentity();
-    mvTranslate([-0.0, 0.0, -6.0]);
 
-    mvPushMatrix();
-    mvRotate(squareRotation, [0, 0, 1]);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-    gl.vertexAttribPointer(shaders.getVertexPositionAttribute(), 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
-    gl.vertexAttribPointer(shaders.getVertexColorAttribute(), 4, gl.FLOAT, false, 0, 0);
-    setMatrixUniforms();
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    for(var index = 0; index < entities.length; index++) {
+      var entity = entities[index];
+      console.log("Name: ", entity.getName());
+      // Update should happen in game world update later...
+      entity.update();
 
-    mvPopMatrix();
+      gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesBuffer());
+      gl.vertexAttribPointer(shaders.getVertexPositionAttribute(), 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesColorBuffer());
+      gl.vertexAttribPointer(shaders.getVertexColorAttribute(), 4, gl.FLOAT, false, 0, 0);
+      this.setMatrixUniforms(entity);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
   }
 
-  function loadIdentity() {
-    mvMatrix = Matrix.I(4);
-  }
-
-  function multMatrix(m) {
-    mvMatrix = mvMatrix.x(m);
-  }
-
-  function mvTranslate(v) {
-    multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
-  }
-
-  function setMatrixUniforms() {
+  Engine.prototype.setMatrixUniforms = function(entity) {
     var pUniform = gl.getUniformLocation(program, "uPMatrix");
     gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
-
     var mvUniform = gl.getUniformLocation(program, "uMVMatrix");
-    gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
-  }
-
-  var mvMatrixStack = [];
-
-  function mvPushMatrix(m) {
-    if (m) {
-      mvMatrixStack.push(m.dup());
-      mvMatrix = m.dup();
-    } else {
-      mvMatrixStack.push(mvMatrix.dup());
-    }
-  }
-
-  function mvPopMatrix() {
-    if (!mvMatrixStack.length) {
-      throw('Cant pop from an empty matrix stack.');
-    }
-    
-    mvMatrix = mvMatrixStack.pop();
-    return mvMatrix;
-  }
-
-  function mvRotate(angle, v) {
-    var inRadians = angle * Math.PI / 180.0;
-    
-    var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
-    multMatrix(m);
+    gl.uniformMatrix4fv(mvUniform, false, new Float32Array(entity.getRotationMatrix().flatten()));
   }
 }
