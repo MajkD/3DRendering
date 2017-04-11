@@ -3,8 +3,6 @@ function Engine(){
   var shaders = new Shaders();
   var gl;
 
-  var squareVerticesBuffer = undefined;
-  var squareVerticesColorBuffer = undefined;
   var perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
   var entities = []
 
@@ -35,10 +33,10 @@ function Engine(){
   }
 
   Engine.prototype.shadersInitialized = function() {
-    entities[0] = new Entity(gl, [-2.0, 0.0, -8.0], "entity1");
-    entities[1] = new Entity(gl, [2.0, 0.0, -8.0], "entity2");
-    console.log(entities[0].getName());
-    console.log(entities[1].getName());
+    entities[0] = new Entity(gl, [-3.0, 0.0, -12.0], "entity1", [0, 1, 1]);
+    entities[1] = new Entity(gl, [3.0, 0.0, -12.0], "entity2", [1, 0, 1]);
+    entities[2] = new Entity(gl, [0.0, 3.0, -12.0], "entity3", [1, 1, 0]);
+    entities[3] = new Entity(gl, [0.0, -3.0, -12.0], "entity4", [0, 0, 1]);
     this.engineInitializedCallback();
   }
 
@@ -47,16 +45,18 @@ function Engine(){
 
     for(var index = 0; index < entities.length; index++) {
       var entity = entities[index];
-      console.log("Name: ", entity.getName());
-      // Update should happen in game world update later...
+      // Update should happen in game world later...
       entity.update();
 
       gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesBuffer());
       gl.vertexAttribPointer(shaders.getVertexPositionAttribute(), 3, gl.FLOAT, false, 0, 0);
+
       gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesColorBuffer());
       gl.vertexAttribPointer(shaders.getVertexColorAttribute(), 4, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, entity.getVerticesIndexBuffer());
       this.setMatrixUniforms(entity);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
     }
   }
 

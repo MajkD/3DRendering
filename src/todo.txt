@@ -1,0 +1,3 @@
+  - Add textures
+  - Move around
+  - Bounce against edges
