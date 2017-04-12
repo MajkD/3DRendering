@@ -1,13 +1,14 @@
-Entity = function (gl, pos, name, rotVec) {
+Entity = function (gl, pos, name, rotVec, texture) {
 
   this.translation = loadIdentity();
   this.rotation = 0;
   this.entityName = "uninited";
   this.rotVec = undefined;
+  this.texture = undefined;
 
   this.cubeVerticesBuffer = undefined;
   this.cubeVerticesIndexBuffer = undefined;
-  this.cubeVerticesColorBuffer = undefined;
+  this.cubeVerticesTextureCoordBuffer = undefined;
   this.lastUpdateTime = undefined;
 
   this.vertices = [
@@ -48,18 +49,39 @@ Entity = function (gl, pos, name, rotVec) {
     -1.0,  1.0, -1.0
   ];
 
-  this.colors = [
-    [1.0,  1.0,  1.0,  1.0],    // Front face: white
-    [1.0,  0.0,  0.0,  1.0],    // Back face: red
-    [0.0,  1.0,  0.0,  1.0],    // Top face: green
-    [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
-    [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
-    [1.0,  0.0,  1.0,  1.0]     // Left face: purple
+  this.textureCoordinates = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Top
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Right
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Left
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0
   ];
 
-  // This array defines each face as two triangles, using the
-  // indices into the vertex array to specify each triangle's
-  // position.
   this.cubeVertexIndices = [
     0,  1,  2,      0,  2,  3,    // front
     4,  5,  6,      4,  6,  7,    // back
@@ -69,10 +91,11 @@ Entity = function (gl, pos, name, rotVec) {
     20, 21, 22,     20, 22, 23    // left
   ];
 
-  Entity.prototype.init = function(gl, pos, name, rotVec) {
+  Entity.prototype.init = function(gl, pos, name, rotVec, texture) {
     this.entityName = name;
     this.rotVec = rotVec;
     this.translation = mvTranslate(this.translation, pos);
+    this.texture = texture;
 
     this.cubeVerticesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesBuffer);
@@ -82,17 +105,9 @@ Entity = function (gl, pos, name, rotVec) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.cubeVerticesIndexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.cubeVertexIndices), gl.STATIC_DRAW);
 
-    var generatedColors = [];
-    for (var j = 0; j < 6; j++) {
-      var c = this.colors[j];
-      for (var i = 0; i < 4; i++) {
-        generatedColors = generatedColors.concat(c);
-      }
-    }
-
-    this.cubeVerticesColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(generatedColors), gl.STATIC_DRAW);
+    this.cubeVerticesTextureCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesTextureCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureCoordinates), gl.STATIC_DRAW);
   }
 
   Entity.prototype.update = function() {
@@ -107,10 +122,12 @@ Entity = function (gl, pos, name, rotVec) {
   Entity.prototype.getVerticesBuffer = function() { return this.cubeVerticesBuffer; }
   Entity.prototype.getVerticesIndexBuffer = function() { return this.cubeVerticesIndexBuffer; }
   Entity.prototype.getVerticesColorBuffer = function() { return this.cubeVerticesColorBuffer; }
+  Entity.prototype.getVerticesTextureCoordBuffer = function() { return this.cubeVerticesTextureCoordBuffer; }
   Entity.prototype.getRotationMatrix = function() {
     return mvRotate(this.translation, this.rotation, this.rotVec);
   }
   Entity.prototype.getName = function() { return this.entityName; }
+  Entity.prototype.getTexture = function() { return this.texture; }
 
-  this.init(gl, pos, name, rotVec);
+  this.init(gl, pos, name, rotVec, texture);
 }

@@ -3,11 +3,14 @@ function Shaders(){
   this.shaderFiles = ["fragment.c", "vertex.c"]
   this.fetchingShaders = 0
   this.loadedShaders = {}
+  this.program = undefined;
   var vertexPositionAttribute = undefined;
-  var vertexColorAttribute = undefined;
+  var textureCoordAttribute = undefined;
 
   Shaders.prototype.getVertexPositionAttribute = function() { return vertexPositionAttribute };
-  Shaders.prototype.getVertexColorAttribute = function() { return vertexColorAttribute };
+  Shaders.prototype.getTextureCoordAttribute = function() { return textureCoordAttribute };
+  Shaders.prototype.getTextureCoordAttribute = function() { return textureCoordAttribute };
+  Shaders.prototype.getProgram = function() { return this.program };
 
   Shaders.prototype.fetchShader = function(shader, callback) {
     var file = new XMLHttpRequest();
@@ -42,21 +45,20 @@ function Shaders(){
     gl.compileShader(vertexShader);
     gl.compileShader(fragmentShader);
 
-    program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    this.program = gl.createProgram();
+    gl.attachShader(this.program, vertexShader);
+    gl.attachShader(this.program, fragmentShader);
 
-    gl.linkProgram(program);
-    // If creating the shader program failed, alert
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.log('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
+    gl.linkProgram(this.program);
+    if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+      console.log('Unable to initialize the shader program: ' + gl.getProgramInfoLog(this.program));
     }
-    gl.useProgram(program);
-    vertexPositionAttribute = gl.getAttribLocation(program, 'aVertexPosition');
+    gl.useProgram(this.program);
+    vertexPositionAttribute = gl.getAttribLocation(this.program, 'aVertexPosition');
     gl.enableVertexAttribArray(vertexPositionAttribute);
 
-    vertexColorAttribute = gl.getAttribLocation(program, 'aVertexColor');
-    gl.enableVertexAttribArray(vertexColorAttribute);
+    textureCoordAttribute = gl.getAttribLocation(this.program, 'aTextureCoord');
+    gl.enableVertexAttribArray(textureCoordAttribute);
 
     onShadersInitialized();
   }

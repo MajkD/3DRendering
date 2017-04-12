@@ -1,6 +1,7 @@
 function Engine(){
 
   var shaders = new Shaders();
+  var textures = new Textures();
   var gl;
 
   var perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
@@ -33,10 +34,18 @@ function Engine(){
   }
 
   Engine.prototype.shadersInitialized = function() {
-    entities[0] = new Entity(gl, [-3.0, 0.0, -12.0], "entity1", [0, 1, 1]);
-    entities[1] = new Entity(gl, [3.0, 0.0, -12.0], "entity2", [1, 0, 1]);
-    entities[2] = new Entity(gl, [0.0, 3.0, -12.0], "entity3", [1, 1, 0]);
-    entities[3] = new Entity(gl, [0.0, -3.0, -12.0], "entity4", [0, 0, 1]);
+    console.log("Shaders Initialized...");
+    textures.initTextures(gl, this.texturesInitialized.bind(this));
+    this.engineInitializedCallback();
+  }
+
+  Engine.prototype.texturesInitialized = function() {
+    console.log("Textures Loaded...");
+    entities[0] = new Entity(gl, [-3.0, 0.0, -12.0], "entity1", [0, 1, 1], "cubetexture.png");
+    entities[1] = new Entity(gl, [3.0, 0.0, -12.0], "entity2", [1, 0, 1], "cubetexture.png");
+    entities[2] = new Entity(gl, [0.0, 3.0, -12.0], "entity3", [1, 1, 0], "test.png");
+    entities[3] = new Entity(gl, [0.0, -3.0, -12.0], "entity4", [0, 0, 1], "test.png");
+    console.log("Entities Initialized...");
     this.engineInitializedCallback();
   }
 
@@ -51,8 +60,12 @@ function Engine(){
       gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesBuffer());
       gl.vertexAttribPointer(shaders.getVertexPositionAttribute(), 3, gl.FLOAT, false, 0, 0);
 
-      gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesColorBuffer());
-      gl.vertexAttribPointer(shaders.getVertexColorAttribute(), 4, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesTextureCoordBuffer());
+      gl.vertexAttribPointer(shaders.getTextureCoordAttribute(), 2, gl.FLOAT, false, 0, 0);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, textures.getTextures()[entity.getTexture()]);
+      gl.uniform1i(gl.getUniformLocation(shaders.getProgram(), 'uSampler'), 0);
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, entity.getVerticesIndexBuffer());
       this.setMatrixUniforms(entity);
@@ -61,9 +74,9 @@ function Engine(){
   }
 
   Engine.prototype.setMatrixUniforms = function(entity) {
-    var pUniform = gl.getUniformLocation(program, "uPMatrix");
+    var pUniform = gl.getUniformLocation(shaders.getProgram(), "uPMatrix");
     gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
-    var mvUniform = gl.getUniformLocation(program, "uMVMatrix");
+    var mvUniform = gl.getUniformLocation(shaders.getProgram(), "uMVMatrix");
     gl.uniformMatrix4fv(mvUniform, false, new Float32Array(entity.getRotationMatrix().flatten()));
   }
 }

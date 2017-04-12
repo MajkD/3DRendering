@@ -1,0 +1,37 @@
+// this.cubeVerticesColorBuffer = undefined;
+
+// this.colors = [
+//   [1.0,  1.0,  1.0,  1.0],    // Front face: white
+//   [1.0,  0.0,  0.0,  1.0],    // Back face: red
+//   [0.0,  1.0,  0.0,  1.0],    // Top face: green
+//   [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+//   [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+//   [1.0,  0.0,  1.0,  1.0]     // Left face: purple
+// ];
+
+// var generatedColors = [];
+// for (var j = 0; j < 6; j++) {
+//   var c = this.colors[j];
+//   for (var i = 0; i < 4; i++) {
+//     generatedColors = generatedColors.concat(c);
+//   }
+// }
+
+// var generatedColors = [];
+// for (var i = 0; i < 4; i++) {
+//   for (var j = 0; j < 6; j++) {
+//     generatedColors = generatedColors.concat(this.colors[j]);
+//   }
+// }
+
+// this.cubeVerticesColorBuffer = gl.createBuffer();
+// gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesColorBuffer);
+// gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(generatedColors), gl.STATIC_DRAW);
+
+// vertexColorAttribute = gl.getAttribLocation(program, 'aVertexColor');
+// gl.enableVertexAttribArray(vertexColorAttribute);
+
+
+
+// gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesColorBuffer());
+// gl.vertexAttribPointer(shaders.getVertexColorAttribute(), 4, gl.FLOAT, false, 0, 0);
