@@ -42,9 +42,9 @@ function Engine(){
   Engine.prototype.texturesInitialized = function() {
     console.log("Textures Loaded...");
     entities[0] = new Entity(gl, [-3.0, 0.0, -20.0], "entity1", [0, 1, 1], "test2.png", [0, 1, 0]);
-    entities[1] = new Entity(gl, [3.0, 0.0, -20.0], "entity2", [1, 0, 1], "test2.png", [1, 0, 1]);
-    entities[2] = new Entity(gl, [0.0, 3.0, -20.0], "entity3", [1, 1, 0], "test2.png", [1, 1, 0]);
-    entities[3] = new Entity(gl, [0.0, -3.0, -20.0], "entity4", [0, 0, 1], "test2.png", [0, 0, 1]);
+    entities[1] = new Entity(gl, [3.0, 0.0, -20.0], "entity2", [1, 0, 1], "test2.png", [1, 0, 0]);
+    // entities[2] = new Entity(gl, [0.0, 3.0, -20.0], "entity3", [1, 1, 0], "test2.png", [1, 1, 0]);
+    // entities[3] = new Entity(gl, [0.0, -3.0, -20.0], "entity4", [0, 0, 1], "test2.png", [0, 1, 0]);
     console.log("Entities Initialized...");
     this.engineInitializedCallback();
   }
@@ -55,7 +55,7 @@ function Engine(){
     for(var index = 0; index < entities.length; index++) {
       var entity = entities[index];
       // Update should happen in game world later...
-      entity.update();
+      entity.update(entities);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesBuffer());
       gl.vertexAttribPointer(shaders.getVertexPositionAttribute(), 3, gl.FLOAT, false, 0, 0);

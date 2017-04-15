@@ -1,10 +1,10 @@
 Entity = function (gl, pos, name, rotVec, texture, velocity) {
 
-  this.gameWorld = {
-    X: { min: -6.5, max: 6.5 },
-    Y: { min: -6.5, max: 6.5 },
-    Z: { min: -25.0, max: -12.0 }
-  };
+  this.gameWorld = [
+    { min: -6.5, max: 6.5 },
+    { min: -6.5, max: 6.5 },
+    { min: -25.0, max: -15.0 }
+  ];
 
   this.translation = loadIdentity();
   this.rotation = 0;
@@ -120,34 +120,57 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureCoordinates), gl.STATIC_DRAW);
   }
 
-  Entity.prototype.update = function() {
+  Entity.prototype.update = function(entities) {
     var currentTime = Date.now();
     if(this.lastUpdateTime) {
       var deltaMS = ((currentTime - this.lastUpdateTime) / 1000.0);
+      this.collideWithBoundary();
+      this.collideWithEntities(entities);
+      var deltaVec = copyVec(this.velocity);
+      multVec(deltaVec, deltaMS * 5);
+      addVectors(this.pos, deltaVec);
+      this.translation = mvTranslate(loadIdentity(), this.pos);
 
       this.rotation += deltaMS * 100;
-
-      if(this.shouldMove()) {
-        var deltaVec = copyVec(this.velocity);
-        multVec(deltaVec, deltaMS * 5);
-        addVectors(this.pos, deltaVec);
-        this.translation = mvTranslate(loadIdentity(), this.pos);
-        // console.log(this.pos);
-      }
     }
     this.lastUpdateTime = currentTime;
   }
 
-  Entity.prototype.shouldMove = function() {
-    // console.log(this.pos)
-    if(this.pos[0] < this.gameWorld.X.max && this.pos[0] > this.gameWorld.X.min) {
-      if(this.pos[1] < this.gameWorld.Y.max && this.pos[1] > this.gameWorld.Y.min) {
-        if(this.pos[2] < this.gameWorld.Z.max && this.pos[2] > this.gameWorld.Z.min) {
-          return true;
+  Entity.prototype.collideWithBoundary = function() {
+    for(var index = 0; index <= 2; index++) {
+      if (this.pos[index] >= this.gameWorld[index].max) {
+        this.pos[index] = this.gameWorld[index].max;
+        this.velocity[index] = -this.velocity[index];
+      }
+      if (this.pos[index] <= this.gameWorld[index].min) {
+        this.pos[index] = this.gameWorld[index].min;
+        this.velocity[index] = -this.velocity[index];
+      }  
+    }
+  }
+
+  Entity.prototype.collideWithEntities = function(entities) {
+    for(var index = 0; index < entities.length; index++) {
+      entity = entities[index];
+      if (entity != this) {
+        var toOther = copyVec(entity.pos);
+        subVectors(toOther, this.pos)
+        // console.log("Dist: ", vectorLength(toOther))
+        if(vectorLength(toOther) < 1) {
+          
+          var dir = invertVec(toOther);
+          for(var index = 0; index <= 2; index++) {
+            this.velocity[index] = dir[index];
+            if(this.velocity[index] < -1) {
+              this.velocity[index] = -1;
+            }
+            if(this.velocity[index] > 1) {
+              this.velocity[index] = 1;
+            }
+          }
         }
       }
     }
-    return false;
   }
 
   Entity.prototype.getVerticesBuffer = function() { return this.cubeVerticesBuffer; }
