@@ -41,12 +41,21 @@ function Engine(){
 
   Engine.prototype.texturesInitialized = function() {
     console.log("Textures Loaded...");
-    entities[0] = new Entity(gl, [-3.0, 0.0, -20.0], "entity1", [0, 1, 1], "test2.png", [0, 1, 0]);
-    entities[1] = new Entity(gl, [3.0, 0.0, -20.0], "entity2", [1, 0, 1], "test2.png", [1, 0, 0]);
-    // entities[2] = new Entity(gl, [0.0, 3.0, -20.0], "entity3", [1, 1, 0], "test2.png", [1, 1, 0]);
-    // entities[3] = new Entity(gl, [0.0, -3.0, -20.0], "entity4", [0, 0, 1], "test2.png", [0, 1, 0]);
+    entities[0] = new Entity(gl, [-2.0, 0.0, -20.0], "entity1", [0, 1, 1], "test2.png", [0, 1, 0]);
+    entities[1] = new Entity(gl, [2.0, 0.0, -20.0], "entity2", [1, 0, 1], "test2.png", [1, 0, 0]);
+    entities[2] = new Entity(gl, [0.0, 3.0, -20.0], "entity3", [1, 1, 0], "test2.png", [1, 0, 0]);
+    entities[3] = new Entity(gl, [0.0, -3.0, -20.0], "entity4", [0, 0, 1], "test2.png", [0, 1, 0]);
     console.log("Entities Initialized...");
     this.engineInitializedCallback();
+  }
+
+  Engine.prototype.interact = function () {
+    for(var index = 0; index < entities.length; index++) {
+      var min = -2;
+      var max = 2;
+      entities[index].velocity[0] = Math.floor(Math.random() * (max - min)) + min;
+      entities[index].velocity[1] = Math.floor(Math.random() * (max - min)) + min;
+    }
   }
 
   Engine.prototype.drawScene = function(squareRotation) {

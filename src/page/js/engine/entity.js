@@ -124,6 +124,8 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     var currentTime = Date.now();
     if(this.lastUpdateTime) {
       var deltaMS = ((currentTime - this.lastUpdateTime) / 1000.0);
+
+      this.slowDown(deltaMS);
       this.collideWithBoundary();
       this.collideWithEntities(entities);
       var deltaVec = copyVec(this.velocity);
@@ -134,6 +136,24 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
       this.rotation += deltaMS * 100;
     }
     this.lastUpdateTime = currentTime;
+  }
+
+  Entity.prototype.slowDown = function(deltaMS) {
+    var velDiminish = deltaMS * 0.5;
+    for(var index = 0; index <= 2; index++) {
+      if (this.velocity[index] < 0) {
+        this.velocity[index] += velDiminish;
+        if(this.velocity[index] > 0) {
+          this.velocity[index] = 0;
+        }
+      }
+      if (this.velocity[index] > 0) {
+        this.velocity[index] -= velDiminish;
+        if(this.velocity[index] < 0) {
+          this.velocity[index] = 0;
+        }
+      }
+    }
   }
 
   Entity.prototype.collideWithBoundary = function() {
@@ -154,10 +174,8 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
       entity = entities[index];
       if (entity != this) {
         var toOther = copyVec(entity.pos);
-        subVectors(toOther, this.pos)
-        // console.log("Dist: ", vectorLength(toOther))
-        if(vectorLength(toOther) < 1) {
-          
+        subVectors(toOther, this.pos);
+        if(vectorLength(toOther) < 2) {
           var dir = invertVec(toOther);
           for(var index = 0; index <= 2; index++) {
             this.velocity[index] = dir[index];

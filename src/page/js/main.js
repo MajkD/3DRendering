@@ -9,3 +9,9 @@ function engineInitialized() {
 function update() {
   engine.drawScene();
 }
+
+function mouseCLicked() {
+  engine.interact();
+}
+
+window.onmousedown = mouseCLicked;

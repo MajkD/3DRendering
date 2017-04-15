@@ -1,2 +1,2 @@
-  - Make interactive
   - Lighting & video
+  - Proper collision

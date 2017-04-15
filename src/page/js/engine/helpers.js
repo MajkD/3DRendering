@@ -21,7 +21,7 @@
   }
 
   function vectorLength(vec) {
-    return Math.sqrt(Math.pow(vec[0], 2), Math.pow(vec[1], 2), Math.pow(vec[2], 2))
+    return Math.sqrt(Math.pow(vec[0], 2) + Math.pow(vec[1], 2) + Math.pow(vec[2], 2))
   }
 
   function vecNormalize(vec) {
