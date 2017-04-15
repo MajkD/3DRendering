@@ -2,7 +2,7 @@ function Textures(){
 
     var gl;
     var textures = {};
-    var texturesToLoad = ["cubetexture.png", "test.png"]
+    var texturesToLoad = ["cubetexture.png", "test.png", "test2.png"]
     var loadingTextures = 0;
 
     Textures.prototype.getTextures = function() { return textures };

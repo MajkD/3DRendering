@@ -1,10 +1,18 @@
-Entity = function (gl, pos, name, rotVec, texture) {
+Entity = function (gl, pos, name, rotVec, texture, velocity) {
+
+  this.gameWorld = {
+    X: { min: -6.5, max: 6.5 },
+    Y: { min: -6.5, max: 6.5 },
+    Z: { min: -25.0, max: -12.0 }
+  };
 
   this.translation = loadIdentity();
   this.rotation = 0;
   this.entityName = "uninited";
   this.rotVec = undefined;
+  this.velocity = undefined;
   this.texture = undefined;
+  this.pos = undefined;
 
   this.cubeVerticesBuffer = undefined;
   this.cubeVerticesIndexBuffer = undefined;
@@ -91,11 +99,13 @@ Entity = function (gl, pos, name, rotVec, texture) {
     20, 21, 22,     20, 22, 23    // left
   ];
 
-  Entity.prototype.init = function(gl, pos, name, rotVec, texture) {
+  Entity.prototype.init = function(gl, pos, name, rotVec, texture, velocity) {
     this.entityName = name;
     this.rotVec = rotVec;
-    this.translation = mvTranslate(this.translation, pos);
     this.texture = texture;
+    this.velocity = velocity;
+    this.pos = pos;
+    this.translation = mvTranslate(loadIdentity(), this.pos);
 
     this.cubeVerticesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesBuffer);
@@ -113,10 +123,31 @@ Entity = function (gl, pos, name, rotVec, texture) {
   Entity.prototype.update = function() {
     var currentTime = Date.now();
     if(this.lastUpdateTime) {
-      var delta = currentTime - this.lastUpdateTime;
-      this.rotation += (100 * delta) / 1000.0;
+      var deltaMS = ((currentTime - this.lastUpdateTime) / 1000.0);
+
+      this.rotation += deltaMS * 100;
+
+      if(this.shouldMove()) {
+        var deltaVec = copyVec(this.velocity);
+        multVec(deltaVec, deltaMS * 5);
+        addVectors(this.pos, deltaVec);
+        this.translation = mvTranslate(loadIdentity(), this.pos);
+        // console.log(this.pos);
+      }
     }
     this.lastUpdateTime = currentTime;
+  }
+
+  Entity.prototype.shouldMove = function() {
+    // console.log(this.pos)
+    if(this.pos[0] < this.gameWorld.X.max && this.pos[0] > this.gameWorld.X.min) {
+      if(this.pos[1] < this.gameWorld.Y.max && this.pos[1] > this.gameWorld.Y.min) {
+        if(this.pos[2] < this.gameWorld.Z.max && this.pos[2] > this.gameWorld.Z.min) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   Entity.prototype.getVerticesBuffer = function() { return this.cubeVerticesBuffer; }
@@ -129,5 +160,5 @@ Entity = function (gl, pos, name, rotVec, texture) {
   Entity.prototype.getName = function() { return this.entityName; }
   Entity.prototype.getTexture = function() { return this.texture; }
 
-  this.init(gl, pos, name, rotVec, texture);
+  this.init(gl, pos, name, rotVec, texture, velocity);
 }

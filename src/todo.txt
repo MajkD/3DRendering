@@ -1,2 +1,5 @@
+  
   - Move around
+  - Make interactive
   - Bounce against edges
+  - Lighting & video 
