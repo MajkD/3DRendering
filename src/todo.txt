@@ -1,2 +1,2 @@
   - Lighting & video
-  - Proper collision
+  - Deploy

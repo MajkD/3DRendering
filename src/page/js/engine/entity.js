@@ -1,11 +1,5 @@
 Entity = function (gl, pos, name, rotVec, texture, velocity) {
 
-  this.gameWorld = [
-    { min: -6.5, max: 6.5 },
-    { min: -6.5, max: 6.5 },
-    { min: -25.0, max: -15.0 }
-  ];
-
   this.translation = loadIdentity();
   this.rotation = 0;
   this.entityName = "uninited";
@@ -120,26 +114,25 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureCoordinates), gl.STATIC_DRAW);
   }
 
-  Entity.prototype.update = function(entities) {
-    var currentTime = Date.now();
-    if(this.lastUpdateTime) {
-      var deltaMS = ((currentTime - this.lastUpdateTime) / 1000.0);
-
-      this.slowDown(deltaMS);
-      this.collideWithBoundary();
-      this.collideWithEntities(entities);
-      var deltaVec = copyVec(this.velocity);
-      multVec(deltaVec, deltaMS * 5);
-      addVectors(this.pos, deltaVec);
-      this.translation = mvTranslate(loadIdentity(), this.pos);
-
-      this.rotation += deltaMS * 100;
-    }
-    this.lastUpdateTime = currentTime;
+  Entity.prototype.update = function(deltaTime) {
+    this.updateTranslation(deltaTime);
+    this.updateRotation(deltaTime);
   }
 
-  Entity.prototype.slowDown = function(deltaMS) {
-    var velDiminish = deltaMS * 0.5;
+  Entity.prototype.updateTranslation = function(deltaTime) {
+    this.slowDown(deltaTime);
+    var deltaVec = copyVec(this.velocity);
+    multVec(deltaVec, deltaTime * 5);
+    addVectors(this.pos, deltaVec);
+    this.translation = mvTranslate(loadIdentity(), this.pos);
+  }
+
+  Entity.prototype.updateRotation = function(deltaTime) {
+    this.rotation += deltaTime * 100;
+  }
+
+  Entity.prototype.slowDown = function(deltaTime) {
+    var velDiminish = deltaTime * 0.5;
     for(var index = 0; index <= 2; index++) {
       if (this.velocity[index] < 0) {
         this.velocity[index] += velDiminish;
@@ -156,39 +149,19 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     }
   }
 
-  Entity.prototype.collideWithBoundary = function() {
-    for(var index = 0; index <= 2; index++) {
-      if (this.pos[index] >= this.gameWorld[index].max) {
-        this.pos[index] = this.gameWorld[index].max;
-        this.velocity[index] = -this.velocity[index];
-      }
-      if (this.pos[index] <= this.gameWorld[index].min) {
-        this.pos[index] = this.gameWorld[index].min;
-        this.velocity[index] = -this.velocity[index];
-      }  
-    }
+  Entity.prototype.collideWorld = function(axis, position) {
+    this.pos[axis] = position;
+    this.velocity[axis] = -this.velocity[axis];
   }
 
-  Entity.prototype.collideWithEntities = function(entities) {
-    for(var index = 0; index < entities.length; index++) {
-      entity = entities[index];
-      if (entity != this) {
-        var toOther = copyVec(entity.pos);
-        subVectors(toOther, this.pos);
-        if(vectorLength(toOther) < 2) {
-          var dir = invertVec(toOther);
-          for(var index = 0; index <= 2; index++) {
-            this.velocity[index] = dir[index];
-            if(this.velocity[index] < -1) {
-              this.velocity[index] = -1;
-            }
-            if(this.velocity[index] > 1) {
-              this.velocity[index] = 1;
-            }
-          }
-        }
-      }
-    }
+  Entity.prototype.collideEntity = function(other) {
+    var toOther = copyVec(other.pos);
+    subVectors(toOther, this.pos);
+    var newDir = invertVec(toOther);
+    var curSpeed = vectorLength(this.velocity);
+    var dirNormal = vecNormalize(newDir);
+    multVec(dirNormal, curSpeed);
+    this.velocity = copyVec(dirNormal);
   }
 
   Entity.prototype.getVerticesBuffer = function() { return this.cubeVerticesBuffer; }

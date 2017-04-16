@@ -1,17 +1,32 @@
 var engine = new Engine();
+var world = new World();
 
 engine.start(engineInitialized);
 
 function engineInitialized() {
-  setInterval(update, 10);
+  world.init(engine.getGl());
+  setInterval(tick, 10);
 }
 
+function tick() {
+  update();
+  draw();
+}
+
+var lastUpdateTime = Date.now();
+
 function update() {
-  engine.drawScene();
+  var currentTime = Date.now();
+  world.update((currentTime - lastUpdateTime) / 1000.0);
+  lastUpdateTime = currentTime;
+}
+
+function draw() {
+  engine.drawEntities(world.getEntities());
 }
 
 function mouseCLicked() {
-  engine.interact();
+  world.interact();
 }
 
 window.onmousedown = mouseCLicked;
