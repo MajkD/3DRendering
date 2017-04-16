@@ -54,6 +54,9 @@ function Engine(){
       gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesTextureCoordBuffer());
       gl.vertexAttribPointer(shaders.getTextureCoordAttribute(), 2, gl.FLOAT, false, 0, 0);
 
+      gl.bindBuffer(gl.ARRAY_BUFFER, entity.getVerticesNormalBuffer());
+      gl.vertexAttribPointer(shaders.getVertexNormalAttribute(), 3, gl.FLOAT, false, 0, 0);
+
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, textures.getTextures()[entity.getTexture()]);
       gl.uniform1i(gl.getUniformLocation(shaders.getProgram(), 'uSampler'), 0);
@@ -65,9 +68,16 @@ function Engine(){
   }
 
   Engine.prototype.setMatrixUniforms = function(entity) {
+    var matrix = entity.getRotationMatrix();
+    
     var pUniform = gl.getUniformLocation(shaders.getProgram(), "uPMatrix");
     gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
     var mvUniform = gl.getUniformLocation(shaders.getProgram(), "uMVMatrix");
-    gl.uniformMatrix4fv(mvUniform, false, new Float32Array(entity.getRotationMatrix().flatten()));
+    gl.uniformMatrix4fv(mvUniform, false, new Float32Array(matrix.flatten()));
+
+    var normalMatrix = matrix.inverse();
+    normalMatrix = normalMatrix.transpose();
+    var nUniform = gl.getUniformLocation(shaders.getProgram(), 'uNormalMatrix');
+    gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));
   }
 }

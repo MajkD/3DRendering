@@ -6,10 +6,11 @@ function Shaders(){
   this.program = undefined;
   var vertexPositionAttribute = undefined;
   var textureCoordAttribute = undefined;
+  var vertexNormalAttribute = undefined;
 
   Shaders.prototype.getVertexPositionAttribute = function() { return vertexPositionAttribute };
   Shaders.prototype.getTextureCoordAttribute = function() { return textureCoordAttribute };
-  Shaders.prototype.getTextureCoordAttribute = function() { return textureCoordAttribute };
+  Shaders.prototype.getVertexNormalAttribute = function() { return vertexNormalAttribute };
   Shaders.prototype.getProgram = function() { return this.program };
 
   Shaders.prototype.fetchShader = function(shader, callback) {
@@ -59,6 +60,9 @@ function Shaders(){
 
     textureCoordAttribute = gl.getAttribLocation(this.program, 'aTextureCoord');
     gl.enableVertexAttribArray(textureCoordAttribute);
+
+    vertexNormalAttribute = gl.getAttribLocation(this.program, "aVertexNormal");
+    gl.enableVertexAttribArray(vertexNormalAttribute);
 
     onShadersInitialized();
   }

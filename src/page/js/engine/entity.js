@@ -10,6 +10,7 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
 
   this.cubeVerticesBuffer = undefined;
   this.cubeVerticesIndexBuffer = undefined;
+  this.cubeVerticesNormalBuffer = undefined;
   this.cubeVerticesTextureCoordBuffer = undefined;
   this.lastUpdateTime = undefined;
 
@@ -49,6 +50,44 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     -1.0, -1.0,  1.0,
     -1.0,  1.0,  1.0,
     -1.0,  1.0, -1.0
+  ];
+
+  this.vertexNormals = [
+    // Front
+     0.0,  0.0,  1.0,
+     0.0,  0.0,  1.0,
+     0.0,  0.0,  1.0,
+     0.0,  0.0,  1.0,
+    
+    // Back
+     0.0,  0.0, -1.0,
+     0.0,  0.0, -1.0,
+     0.0,  0.0, -1.0,
+     0.0,  0.0, -1.0,
+    
+    // Top
+     0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+     0.0,  1.0,  0.0,
+    
+    // Bottom
+     0.0, -1.0,  0.0,
+     0.0, -1.0,  0.0,
+     0.0, -1.0,  0.0,
+     0.0, -1.0,  0.0,
+    
+    // Right
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+     1.0,  0.0,  0.0,
+    
+    // Left
+    -1.0,  0.0,  0.0,
+    -1.0,  0.0,  0.0,
+    -1.0,  0.0,  0.0,
+    -1.0,  0.0,  0.0
   ];
 
   this.textureCoordinates = [
@@ -109,6 +148,10 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.cubeVerticesIndexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.cubeVertexIndices), gl.STATIC_DRAW);
 
+    this.cubeVerticesNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertexNormals), gl.STATIC_DRAW);
+
     this.cubeVerticesTextureCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVerticesTextureCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureCoordinates), gl.STATIC_DRAW);
@@ -166,6 +209,7 @@ Entity = function (gl, pos, name, rotVec, texture, velocity) {
 
   Entity.prototype.getVerticesBuffer = function() { return this.cubeVerticesBuffer; }
   Entity.prototype.getVerticesIndexBuffer = function() { return this.cubeVerticesIndexBuffer; }
+  Entity.prototype.getVerticesNormalBuffer = function() { return this.cubeVerticesNormalBuffer; }
   Entity.prototype.getVerticesColorBuffer = function() { return this.cubeVerticesColorBuffer; }
   Entity.prototype.getVerticesTextureCoordBuffer = function() { return this.cubeVerticesTextureCoordBuffer; }
   Entity.prototype.getRotationMatrix = function() {
