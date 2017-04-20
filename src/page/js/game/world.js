@@ -14,6 +14,10 @@ World = function () {
     entities[1] = new Entity(gl, [2.0, 0.0, -20.0], "entity2", [1, 0, 1], "test2.png", [1, 0, 0]);
     entities[2] = new Entity(gl, [0.0, 3.0, -20.0], "entity3", [1, 1, 0], "test2.png", [1, 0, 0]);
     entities[3] = new Entity(gl, [0.0, -3.0, -20.0], "entity4", [0, 0, 1], "test2.png", [0, 1, 0]);
+    entities[4] = new Entity(gl, [-3.0, 0.0, -20.0], "entity5", [0, 1, 1], "test2.png", [0, 1, 0]);
+    entities[5] = new Entity(gl, [3.0, 0.0, -20.0], "entity6", [1, 0, 1], "test2.png", [1, 0, 0]);
+    entities[6] = new Entity(gl, [3.0, 3.0, -20.0], "entity7", [1, 1, 0], "test2.png", [1, 0, 0]);
+    entities[7] = new Entity(gl, [-3.0, -3.0, -20.0], "entity8", [0, 0, 1], "test2.png", [0, 1, 0]);
     console.log("World Initialized...");
   }
 
